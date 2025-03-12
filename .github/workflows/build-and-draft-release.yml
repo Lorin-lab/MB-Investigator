@@ -13,7 +13,7 @@ jobs:
       pubspec_version: ${{ steps.get_version.outputs.pubspec_version }}
     defaults:
       run:
-        working-directory: ./mb_investigator
+        working-directory: mb_investigator
         
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        working-directory: ./mb_investigator
+        working-directory: mb_investigator
 
     steps:
       - name: Checkout repository
@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest   
     defaults:
       run:
-        working-directory: ./mb_investigator 
+        working-directory: mb_investigator 
     permissions: 
       contents: write
     
