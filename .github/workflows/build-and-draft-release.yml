@@ -50,6 +50,9 @@ jobs:
       - name: Compile for Windows
         run: flutter build windows --release
 
+      - name: copy license
+        run: cp ../LICENSE build/windows/x64/runner/Release/LICENSE.txt
+
       - run: mkdir artifact
       
       - name: Zip compiled files
@@ -68,9 +71,9 @@ jobs:
       - prepare_build
       - build_windows_zip_x86_64
     runs-on: ubuntu-latest   
-    defaults:
-      run:
-        working-directory: mb_investigator 
+    # defaults:
+      # run:
+        # working-directory: mb_investigator 
     permissions: 
       contents: write
     
