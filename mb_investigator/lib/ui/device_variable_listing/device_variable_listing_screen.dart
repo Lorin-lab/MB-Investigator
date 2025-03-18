@@ -5,6 +5,7 @@ import 'package:mb_investigator/ui/device_variable_listing/device_variable_card.
 import 'package:mb_investigator/ui/device_variable_listing/device_variable_listing_viewmodel.dart';
 import 'package:mb_investigator/ui/remote_device_editor/remote_device_editor.dart';
 import 'package:mb_investigator/ui/device_variable_editor/device_variable_editor.dart';
+import 'package:mb_investigator/ui/about/app_about.dart';
 import 'package:provider/provider.dart';
 
 class DeviceVariableListingScreen extends StatefulWidget {
@@ -63,13 +64,7 @@ class _DeviceVariableListingScreenState
                     PopupMenuItem(
                       child: const ListTile(
                           leading: Icon(Icons.info), title: Text("About")),
-                      onTap: () => {
-                        showAboutDialog(
-                            context: context,
-                            applicationName: "MB-investigator",
-                            applicationVersion: "1.0.0",
-                            applicationLegalese: "License: GPL-3.0")
-                      },
+                      onTap: () => AppAbout.showAbout(context),
                     ),
                   ]),
           title: TextButton.icon(
