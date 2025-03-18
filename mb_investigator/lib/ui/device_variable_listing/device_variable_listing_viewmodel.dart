@@ -74,7 +74,11 @@ class DeviceVariableListingViewModel extends ChangeNotifier {
   CancelableOperation? readingFuture;
   int readingPeriode = 1000; // [ms]
 
-  bool isReading() {
+  bool isAbleToReading() {
+    return readingFuture != null && !(readingFuture!.isCompleted);
+  }
+
+  bool isAbleToStop() {
     return readingFuture != null &&
         !(readingFuture!.isCanceled || readingFuture!.isCompleted);
   }
@@ -82,17 +86,21 @@ class DeviceVariableListingViewModel extends ChangeNotifier {
   void startReading() {
     readingFuture =
         CancelableOperation.fromFuture(_reader(), onCancel: notifyListeners);
-    readingFuture!.then(_onReadingEnd);
+    readingFuture!.then(
+      (value) => _onReadingEnd(),
+      onCancel: () => _onReadingEnd(),
+      onError: (obj, stack) => _onReadingEnd(),
+    );
     notifyListeners();
   }
 
   void stopReading() {
     readingFuture?.cancel();
-    readingFuture = null;
     notifyListeners();
   }
 
-  void _onReadingEnd(dynamic value) {
+  void _onReadingEnd() {
+    readingFuture = null;
     notifyListeners();
   }
 
@@ -110,6 +118,9 @@ class DeviceVariableListingViewModel extends ChangeNotifier {
       RemoteDevice remoteDevice, List<DeviceVariable> deviceVariable) async {
     for (var v in deviceVariable.toList()) {
       await _readDeviceVariable(remoteDevice, v);
+      if (readingFuture?.isCanceled ?? true) {
+        break;
+      }
     }
   }
 

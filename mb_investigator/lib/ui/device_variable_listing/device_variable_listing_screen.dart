@@ -94,13 +94,15 @@ class _DeviceVariableListingScreenState
                 children: [
                   IconButton(
                       tooltip: "Read all",
-                      onPressed:
-                          viewModel.isReading() ? null : viewModel.startReading,
+                      onPressed: viewModel.isAbleToReading()
+                          ? null
+                          : viewModel.startReading,
                       icon: const Icon(Icons.play_circle)),
                   IconButton(
                       tooltip: "Stop reading",
-                      onPressed:
-                          viewModel.isReading() ? viewModel.stopReading : null,
+                      onPressed: viewModel.isAbleToStop()
+                          ? viewModel.stopReading
+                          : null,
                       icon: const Icon(Icons.stop_circle)),
                   Tooltip(
                     message: "Toggle periodic reading",
