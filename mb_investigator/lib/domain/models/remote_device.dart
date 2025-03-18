@@ -2,6 +2,7 @@ import 'package:mb_investigator/domain/models/remote_device_settings.dart';
 import 'package:modbus_client/modbus_client.dart';
 import 'package:modbus_client_serial/modbus_client_serial.dart';
 import 'package:modbus_client_tcp/modbus_client_tcp.dart';
+import 'package:modbus_client_udp/modbus_client_udp.dart';
 
 class RemoteDevice {
   // Constructor
@@ -31,7 +32,13 @@ class RemoteDevice {
           connectionTimeout: Duration(seconds: settings.connectionTimeout),
           delayAfterConnect: Duration(seconds: settings.delayAfterConnect),
           responseTimeout: Duration(seconds: settings.responseTimeout)),
-      RemoteDeviceType.udp => throw UnimplementedError("udp not supported"),
+      RemoteDeviceType.udp => ModbusClientUdp(settings.serverAdress,
+          serverPort: settings.port,
+          unitId: settings.globalUnitId,
+          connectionMode: modbusConnectionMode,
+          connectionTimeout: Duration(seconds: settings.connectionTimeout),
+          delayAfterConnect: Duration(seconds: settings.delayAfterConnect),
+          responseTimeout: Duration(seconds: settings.responseTimeout)),
       RemoteDeviceType.serialRtu => ModbusClientSerialRtu(
           portName: settings.serialPortName,
           baudRate: settings.serialBaudRate,
