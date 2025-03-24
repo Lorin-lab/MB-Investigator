@@ -1,0 +1,111 @@
+name: build-and-draft-release
+
+on:  
+  workflow_dispatch:
+env:
+  FLUTTER_VERSION: "3.27.3"
+
+jobs:
+  # Préparation avant les builds
+  prepare_build:
+    runs-on: ubuntu-latest
+    outputs:
+      pubspec_version: ${{ steps.get_version.outputs.pubspec_version }}
+    defaults:
+      run:
+        working-directory: mb_investigator
+        
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get version from pubspec.yaml
+        id: get_version
+        run: |
+          VERSION=$(sed -n 's/^version: \([0-9]*\.[0-9]*\.[0-9]*\).*/\1/p' pubspec.yaml)
+          echo "pubspec_version=$VERSION" >> $GITHUB_OUTPUT
+
+  # Build l'application windows
+  build_windows_zip_x86_64:
+    needs: prepare_build
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: mb_investigator
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter env
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: "stable"
+          
+      - run: flutter config --no-analytics
+
+      - name: Dependencies
+        run: flutter pub get
+
+      - name: Compile for Windows
+        run: flutter build windows --release
+
+      - name: copy license
+        run: cp ../LICENSE build/windows/x64/runner/Release/LICENSE.txt
+
+      - run: mkdir artifact
+      
+      - name: Zip compiled files
+        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath artifact/MB-Investigator-${{ needs.prepare_build.outputs.pubspec_version }}-WINDOWS.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-windows
+          path: mb_investigator/artifact/*    
+          retention-days: 1
+
+
+  # Création du draft release
+  draft_release:
+    needs:
+      - prepare_build
+      - build_windows_zip_x86_64
+    runs-on: ubuntu-latest   
+    # defaults:
+      # run:
+        # working-directory: mb_investigator 
+    permissions: 
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          #name: -> if unspecified, all artifacts for the run are downloaded.
+          path: my-artifacts/
+          merge-multiple: true
+          pattern: build-*
+
+      - run: ls -l my-artifacts/ # For debuging
+      
+      - name: Draft Release
+        uses: ncipollo/release-action@v1
+        with:        
+          name: v${{ needs.prepare_build.outputs.pubspec_version }}
+          tag: v${{ needs.prepare_build.outputs.pubspec_version }}          
+          draft: true
+          artifacts: "my-artifacts/*"          
+          body: |
+            ### Added
+            - ...
+            ### Changed
+            - ...
+            ### Deprecated
+            - ...
+            ### Removed
+            - ...
+            ### Fixed
+            - ...
+            ### Security
+            - ...
